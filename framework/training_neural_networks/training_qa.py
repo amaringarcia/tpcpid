@@ -409,7 +409,7 @@ for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()
         "fTPCInnerParam": [-1., 1.5],
         "fTgl": [-1., 1.],
         "fNormNClustersTPC": [0.5, 152.5],
-        "fNormNClustersTPCPID": [-25., 105.],
+        "fNormNClustersTPCPID": [0.5, 152.5],
         "fNormMultTPC": [0., 3.],
         "fFt0Occ": [-0.3, 5.],
         "fHadronicRate": [-1., 0.3]
@@ -453,10 +453,10 @@ for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPC', log_x = scaling_x['fNormNClustersTPC'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPC']]*6, transform_x = transform_ncl, xlabel = r'NCl', plot_mode="raw_relsigma_fitted")
 
     if(NClPIDBool):
-        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, xlabel = r'NCl TPC PID')
-        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, useNN=False, xlabel = r'NCl TPC PID')
-        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, xlabel = r'NCl TPC PID', plot_mode="rel_sigma")
-        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, xlabel = r'NCl TPC PID', plot_mode="raw_relsigma_fitted")
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPCPID']]*6, transform_x = transform_ncl, xlabel = r'NCl TPC PID')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPCPID']]*6, transform_x = transform_ncl, useNN=False, xlabel = r'NCl TPC PID')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPCPID']]*6, transform_x = transform_ncl, xlabel = r'NCl TPC PID', plot_mode="rel_sigma")
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPCPID']]*6, transform_x = transform_ncl, xlabel = r'NCl TPC PID', plot_mode="raw_relsigma_fitted")
 
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormMultTPC', log_x = scaling_x['fNormMultTPC'], range_hists = [ranges['fNormMultTPC']]*6, xlabel = r'norm. TPC multiplicity')
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormMultTPC', log_x = scaling_x['fNormMultTPC'], range_hists = [ranges['fNormMultTPC']]*6, useNN=False, xlabel = r'norm. TPC multiplicity')

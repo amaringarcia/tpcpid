@@ -172,6 +172,15 @@ if "fHadronicRate" in CONFIG['createTrainingDatasetOptions']['labels_x']:
     fit_data[:, fHadronicRate_index] = normalizations["fHadronicRate"](fit_data[:, fHadronicRate_index])
     LOG.debug("Using Hadronic Rate option in CreateDataset")
 
+# Normalize fNormNClustersTPCPID (stored as raw cluster count) like fNormNClustersTPC: sqrt(152/N)
+if "fNormNClustersTPCPID" in CONFIG['createTrainingDatasetOptions']['labels_x']:
+    nclpid_index = np.where(labels == 'fNormNClustersTPCPID')[0][0]
+    mask_nclpid = fit_data[:, nclpid_index] > 0
+    LOG.info(f"Removing {np.sum(~mask_nclpid)} of {len(mask_nclpid)} tracks with fNormNClustersTPCPID <= 0")
+    fit_data = fit_data[mask_nclpid]
+    fit_data[:, nclpid_index] = np.sqrt(152. / fit_data[:, nclpid_index])
+    LOG.debug("Using NClustersTPCPID option in CreateDataset (normalized as sqrt(152/N))")
+
 if "fPhi" in CONFIG['createTrainingDatasetOptions']['labels_x']:
     LOG.info("Using phi option in CreateDataset and calculate the delta phi angle (within a given ALICE sector)")
     fPhi_index = np.where(labels == 'fPhi')[0][0]  # Locate the index of fPhi in labels
