@@ -15,6 +15,10 @@ import argparse
 #Returns the config array
 CONFIG = None   # module-level
 
+def use_ncl_pid():
+    """True if fNormNClustersTPCPID is requested as a training variable."""
+    return "fNormNClustersTPCPID" in CONFIG['createTrainingDatasetOptions']['labels_x']
+
 def collect_latest_trees(directory, prefix=""):
     """Recursively collect the latest-cycle TTrees from a ROOT directory."""
     trees = {}
@@ -195,6 +199,8 @@ def create_output_tree(tree_name, title, output_file):
         "fFt0Occ",
         "fHadronicRate",
     ]
+    if use_ncl_pid():
+        float_branch_names.append("fNormNClustersTPCPID")
     int_branch_names = ["fPidIndex", "fRunNumber"]
 
     buffers = {}
@@ -262,6 +268,13 @@ def update_v0_tree(tree, name, calculate_dEdx, output_V0_tree, buffers):
     tree.SetBranchAddress("fNormNClustersTPC", fNormNClustersTPC)
     tree.SetBranchAddress("fFt0Occ", fFt0Occ)
     tree.SetBranchAddress("fHadronicRate", fHadronicRate)
+    copy_ncl_pid = use_ncl_pid()
+    if copy_ncl_pid:
+        if not tree.GetBranch("fNormNClustersTPCPID"):
+            raise RuntimeError(f"Branch fNormNClustersTPCPID not found in input tree {name}")
+        fNormNClustersTPCPID = array.array('f', [0.0])
+        tree.SetBranchAddress("fNormNClustersTPCPID", fNormNClustersTPCPID)
+        fsNormNClustersTPCPID = buffers["fNormNClustersTPCPID"]
 
     fsY = buffers["fY"]
     fsEta = buffers["fEta"]
@@ -333,6 +346,8 @@ def update_v0_tree(tree, name, calculate_dEdx, output_V0_tree, buffers):
         fsNormNClustersTPC[0] = fNormNClustersTPC[0]
         fsFt0Occ[0] = fFt0Occ[0]
         fsHadronicRate[0] = fHadronicRate[0]
+        if copy_ncl_pid:
+            fsNormNClustersTPCPID[0] = fNormNClustersTPCPID[0]
 
         expected_dEdx = calculate_dEdx(fsBetaGamma[0])
         fsInvDeDxExpTPC[0] = 1.0 / expected_dEdx if expected_dEdx != 0 else 0
@@ -407,6 +422,13 @@ def update_tpctof_tree(tree, name, calculate_dEdx, output_tpctof_tree, buffers):
     tree.SetBranchAddress("fNormNClustersTPC", fNormNClustersTPC)
     tree.SetBranchAddress("fFt0Occ", fFt0Occ)
     tree.SetBranchAddress("fHadronicRate", fHadronicRate)
+    copy_ncl_pid = use_ncl_pid()
+    if copy_ncl_pid:
+        if not tree.GetBranch("fNormNClustersTPCPID"):
+            raise RuntimeError(f"Branch fNormNClustersTPCPID not found in input tree {name}")
+        fNormNClustersTPCPID = array.array('f', [0.0])
+        tree.SetBranchAddress("fNormNClustersTPCPID", fNormNClustersTPCPID)
+        fsNormNClustersTPCPID = buffers["fNormNClustersTPCPID"]
 
     fsY = buffers["fY"]
     fsEta = buffers["fEta"]
@@ -472,6 +494,8 @@ def update_tpctof_tree(tree, name, calculate_dEdx, output_tpctof_tree, buffers):
         fsNormNClustersTPC[0] = fNormNClustersTPC[0]
         fsFt0Occ[0] = fFt0Occ[0]
         fsHadronicRate[0] = fHadronicRate[0]
+        if copy_ncl_pid:
+            fsNormNClustersTPCPID[0] = fNormNClustersTPCPID[0]
 
         expected_dEdx = calculate_dEdx(fsBetaGamma[0])
         fsInvDeDxExpTPC[0] = 1.0 / expected_dEdx if expected_dEdx != 0 else 0

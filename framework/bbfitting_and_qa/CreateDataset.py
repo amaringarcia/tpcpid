@@ -94,6 +94,11 @@ write_config(CONFIG, args.config)
 LABELS_X = CONFIG['createTrainingDatasetOptions']['labels_x']
 LABELS_Y = CONFIG['createTrainingDatasetOptions']['labels_y']
 import_labels = [*LABELS_Y, *LABELS_X, 'fPidIndex','fRunNumber']
+use_phi_global = "fPhiGlobal" in LABELS_X
+if use_phi_global and "fPhi" in LABELS_X:
+    raise ValueError("Use either 'fPhi' or 'fPhiGlobal' in labels_x, not both")
+# fPhiGlobal is not a tree branch: read fPhi and rename it after loading
+tree_labels = ["fPhi" if l == "fPhiGlobal" else l for l in import_labels]
 LOG.debug(f"Data import labels are {import_labels}")
 
 ## Loading data and models
@@ -101,9 +106,9 @@ LOG.debug(f"Data import labels are {import_labels}")
 cload = load_tree()
 TTree = cload.trees(dir_tree)
 if mode=="full":
-    labels, fit_data = cload.load(use_vars=import_labels, path=dir_tree, load_latest=True, verbose=True)
+    labels, fit_data = cload.load(use_vars=tree_labels, path=dir_tree, load_latest=True, verbose=True)
 else:
-    v0_labels, v0_data = cload.load(use_vars=import_labels, path=dir_tree, key="O2V0Tree", load_latest=True, verbose=True)
+    v0_labels, v0_data = cload.load(use_vars=tree_labels, path=dir_tree, key="O2V0Tree", load_latest=True, verbose=True)
 
     ### Armenteros Podolanski selection
     alphaQt_l, alphaQt_d = cload.load(use_vars=["fAlphaV0", "fQtV0"], path=dir_tree, key="O2V0Tree", load_latest=True, verbose=True)
@@ -123,7 +128,7 @@ else:
 
     del alphaQt_d, alphaQt_l
 
-    tpctof_labels, tpctof_data = cload.load(use_vars=import_labels, path=dir_tree, key="O2tpctofTree", load_latest=True, verbose=True)
+    tpctof_labels, tpctof_data = cload.load(use_vars=tree_labels, path=dir_tree, key="O2tpctofTree", load_latest=True, verbose=True)
 
     labels = tpctof_labels
     fit_data = v0_data[mask_accept_V0]
@@ -148,6 +153,10 @@ def calculate_delta_phi(phi):
     idx = np.floor(phi / sector_width)
     lower_boundary = idx * sector_width
     return phi - lower_boundary
+
+if use_phi_global:
+    labels = np.array(["fPhiGlobal" if l == "fPhi" else l for l in labels])
+    LOG.info("Using fPhiGlobal: global phi taken as-is from fPhi, no conversion")
 
 check_particle_content(labels, fit_data, messages="Particles found at import")
 

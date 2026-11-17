@@ -43,6 +43,14 @@ PhiBool = "fPhi" in CONFIG['createTrainingDatasetOptions']['labels_x']
 if PhiBool:
     LOG.debug("Using Phi option")
 
+PhiGlobalBool = "fPhiGlobal" in CONFIG['createTrainingDatasetOptions']['labels_x']
+if PhiGlobalBool:
+    LOG.debug("Using global Phi option")
+
+NClPIDBool = "fNormNClustersTPCPID" in CONFIG['createTrainingDatasetOptions']['labels_x']
+if NClPIDBool:
+    LOG.debug("Using NClustersTPCPID option")
+
 ### Data preparation
 
 ## Loading data and models
@@ -379,6 +387,16 @@ if PhiBool:
 else:
     LOG.debug("No folder for QA plots for Phi (disabled)")
 
+if PhiGlobalBool:
+    os.system("rm -rf " + qa_dir + "/fPhiGlobal")
+    os.makedirs(qa_dir + "/fPhiGlobal")
+    LOG.debug("Created folder for QA plots for global Phi")
+
+if NClPIDBool:
+    os.system("rm -rf " + qa_dir + "/fNormNClustersTPCPID")
+    os.makedirs(qa_dir + "/fNormNClustersTPCPID")
+    LOG.debug("Created folder for QA plots for NClustersTPCPID")
+
 for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()))):
 
     def transform_ncl(x):
@@ -391,6 +409,7 @@ for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()
         "fTPCInnerParam": [-1., 1.5],
         "fTgl": [-1., 1.],
         "fNormNClustersTPC": [0.5, 152.5],
+        "fNormNClustersTPCPID": [-25., 105.],
         "fNormMultTPC": [0., 3.],
         "fFt0Occ": [-0.3, 5.],
         "fHadronicRate": [-1., 0.3]
@@ -399,6 +418,7 @@ for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()
         "fTPCInnerParam": True, # log_x
         "fTgl": False,
         "fNormNClustersTPC": False,
+        "fNormNClustersTPCPID": False,
         "fNormMultTPC": False,
         "fFt0Occ": False,
         "fHadronicRate": False
@@ -432,6 +452,12 @@ for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPC', log_x = scaling_x['fNormNClustersTPC'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPC']]*6, transform_x = transform_ncl, xlabel = r'NCl', plot_mode="rel_sigma")
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPC', log_x = scaling_x['fNormNClustersTPC'], bins_sig_mean = 152, range_hists = [ranges['fNormNClustersTPC']]*6, transform_x = transform_ncl, xlabel = r'NCl', plot_mode="raw_relsigma_fitted")
 
+    if(NClPIDBool):
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, xlabel = r'NCl TPC PID')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, useNN=False, xlabel = r'NCl TPC PID')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, xlabel = r'NCl TPC PID', plot_mode="rel_sigma")
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormNClustersTPCPID', log_x = scaling_x['fNormNClustersTPCPID'], bins_sig_mean = 130, range_hists = [ranges['fNormNClustersTPCPID']]*6, xlabel = r'NCl TPC PID', plot_mode="raw_relsigma_fitted")
+
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormMultTPC', log_x = scaling_x['fNormMultTPC'], range_hists = [ranges['fNormMultTPC']]*6, xlabel = r'norm. TPC multiplicity')
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormMultTPC', log_x = scaling_x['fNormMultTPC'], range_hists = [ranges['fNormMultTPC']]*6, useNN=False, xlabel = r'norm. TPC multiplicity')
     QA2D_NSigma_vs_Var(i, mass, plot_against = 'fNormMultTPC', log_x = scaling_x['fNormMultTPC'], range_hists = [ranges['fNormMultTPC']]*6, xlabel = r'norm. TPC multiplicity', plot_mode="rel_sigma")
@@ -453,6 +479,12 @@ for i, mass in enumerate(np.sort(np.unique(fit_data[:,labels=='fMass'].flatten()
         QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhi', log_x = False, range_hists = [[-0.03,0.38]]*6, useNN=False, xlabel = r'phi - k*pi/9')
         QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhi', log_x = False, range_hists = [[-0.03,0.38]]*6, plot_mode="rel_sigma",xlabel = r'phi - k*pi/9')
         QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhi', log_x = False, range_hists = [[-0.03,0.38]]*6, plot_mode="raw_relsigma_fitted",xlabel = r'phi - k*pi/9')
+
+    if(PhiGlobalBool):
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhiGlobal', log_x = False, range_hists = [[-0.05,6.34]]*6, xlabel = r'phi [rad]')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhiGlobal', log_x = False, range_hists = [[-0.05,6.34]]*6, useNN=False, xlabel = r'phi [rad]')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhiGlobal', log_x = False, range_hists = [[-0.05,6.34]]*6, plot_mode="rel_sigma",xlabel = r'phi [rad]')
+        QA2D_NSigma_vs_Var(i, mass, plot_against = 'fPhiGlobal', log_x = False, range_hists = [[-0.05,6.34]]*6, plot_mode="raw_relsigma_fitted",xlabel = r'phi [rad]')
 
 separation_power(useNN=1, useMassAssumption=0)
 separation_power(useNN=0, useMassAssumption=0)

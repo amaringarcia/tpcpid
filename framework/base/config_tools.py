@@ -23,15 +23,26 @@ def write_config(CONFIG, path = "../configuration.json"):
 
 #Reads config and evaluates NN version
 def evaluate_nn_version(config):
+    labels_x = config["createTrainingDatasetOptions"]["labels_x"]
+    phi_entrance = config['createTrainingDatasetOptions'].get('phiEntrance', {}).get('activate', False)
+    use_ncl_pid = "fNormNClustersTPCPID" in labels_x
     version = 1
-    if "fFt0Occ" in config["createTrainingDatasetOptions"]["labels_x"]:
+    if "fFt0Occ" in labels_x:
         version = 2
-        if "fHadronicRate" in config["createTrainingDatasetOptions"]["labels_x"]:
+        if "fHadronicRate" in labels_x:
             version = 3
-            if "fPhi" in config["createTrainingDatasetOptions"]["labels_x"]:
+            if "fPhi" in labels_x:
                 version = 4
-                if config['createTrainingDatasetOptions'].get('phiEntrance', {}).get('activate', False):
+                if phi_entrance:
                     version = 5
+                if use_ncl_pid:
+                    if phi_entrance:
+                        raise ValueError("No NN version defined for fNormNClustersTPCPID together with phiEntrance")
+                    version = 6
+            elif "fPhiGlobal" in labels_x:
+                version = "6b" if use_ncl_pid else "5a"
+    if use_ncl_pid and version not in (6, "6b"):
+        raise ValueError("fNormNClustersTPCPID requires fFt0Occ, fHadronicRate and fPhi or fPhiGlobal in labels_x (NNv6 / NNv6b)")
     return version
 
 #Reads config and adds the name of the dataset
@@ -43,7 +54,7 @@ def add_name_and_path(config):
     if "fHadronicRate" in config["createTrainingDatasetOptions"]["labels_x"]:
         config["dataset"]["HadronicRate"] = "True"
 
-    if "fPhi" in config["createTrainingDatasetOptions"]["labels_x"]:
+    if "fPhi" in config["createTrainingDatasetOptions"]["labels_x"] or "fPhiGlobal" in config["createTrainingDatasetOptions"]["labels_x"]:
         config["dataset"]["Phi"] = "True"
 
     dataset = config.get('dataset', {})
