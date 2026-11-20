@@ -40,8 +40,12 @@ def evaluate_nn_version(config):
                         raise ValueError("No NN version defined for fNormNClustersTPCPID together with phiEntrance")
                     version = 6
             elif "fPhiGlobal" in labels_x:
-                version = "6b" if use_ncl_pid else "5a"
-    if use_ncl_pid and version not in (6, "6b"):
+                if use_ncl_pid:
+                    # 6b: fNormNClustersTPC + fNormNClustersTPCPID; 6c: fNormNClustersTPCPID replaces fNormNClustersTPC
+                    version = "6b" if "fNormNClustersTPC" in labels_x else "6c"
+                else:
+                    version = "5a"
+    if use_ncl_pid and version not in (6, "6b", "6c"):
         raise ValueError("fNormNClustersTPCPID requires fFt0Occ, fHadronicRate and fPhi or fPhiGlobal in labels_x (NNv6 / NNv6b)")
     return version
 
